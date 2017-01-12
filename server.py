@@ -19,6 +19,7 @@ import os
 import cherrypy
 import requests
 import json
+import time
 from mako.template import Template
 from mako.lookup import TemplateLookup
 
@@ -42,8 +43,9 @@ class PersonalityInsightsService:
             services = json.loads(vcapServices)
             svcName = "personality_insights"
             if svcName in services:
-                print("Personality Insights service found!")
+            	print("Personality Insights service found!")
                 svc = services[svcName][0]["credentials"]
+	        #svc = services
                 self.url = svc["url"]
                 self.username = svc["username"]
                 self.password = svc["password"]
@@ -97,7 +99,10 @@ class DemoService(object):
         and return the response.
         """
         try:
+            start = time.time()
             profileJson = self.service.getProfile(text)
+            duration = int((time.time()-start)*1000)
+ 	    print "Watson PI API call took:{0} ms".format(duration)
             return json.dumps(profileJson)
         except Exception as e:
             print "ERROR: %s" % e
@@ -108,8 +113,9 @@ if __name__ == '__main__':
     lookup = TemplateLookup(directories=["templates"])
 
     # Get host/port from the Bluemix environment, or default to local
-    HOST_NAME = os.getenv("VCAP_APP_HOST", "127.0.0.1")
-    PORT_NUMBER = int(os.getenv("VCAP_APP_PORT", "3000"))
+    #HOST_NAME = os.getenv("VCAP_APP_HOST", "127.0.0.1")
+    HOST_NAME = '0.0.0.0'
+    PORT_NUMBER = int(os.getenv("PORT", "3000"))
     cherrypy.config.update({
         "server.socket_host": HOST_NAME,
         "server.socket_port": PORT_NUMBER,
@@ -130,8 +136,8 @@ if __name__ == '__main__':
     }
 
     # Create the Personality Insights Wrapper
-    personalityInsights = PersonalityInsightsService(os.getenv("VCAP_SERVICES"))
-
+    personalityInsights = PersonalityInsightsService(os.getenv("VCAP_SERVICES")) 
+    
     # Start the server
     print("Listening on %s:%d" % (HOST_NAME, PORT_NUMBER))
     cherrypy.quickstart(DemoService(personalityInsights), "/", config=conf)
