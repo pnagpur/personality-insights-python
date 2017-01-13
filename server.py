@@ -100,10 +100,10 @@ class DemoService(object):
         """
         try:
 	    # Time the call to the PI service
-            #start = time.time()
+            start = time.time()
             profileJson = self.service.getProfile(text)
-            #duration = int((time.time()-start)*1000)
- 	    #print "Watson PI API call took:{0} ms".format(duration)
+            duration = int((time.time()-start)*1000)
+ 	    print "Watson PI API call took:{0} ms".format(duration)
             return json.dumps(profileJson)
         except Exception as e:
             print "ERROR: %s" % e
