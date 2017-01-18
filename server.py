@@ -27,30 +27,10 @@ from mako.lookup import TemplateLookup
 class PersonalityInsightsService:
     """Wrapper on the Personality Insights service"""
 
-    def __init__(self, vcapServices):
-        """
-        Construct an instance. Fetches service parameters from VCAP_SERVICES
-        runtime variable for Bluemix, or it defaults to local URLs.
-        """
-
-        # Local variables
-        self.url = "<url>"
-        self.username = "<username>"
-        self.password = "<password>"
-
-        if vcapServices is not None:
-            print("Parsing VCAP_SERVICES")
-            services = json.loads(vcapServices)
-            svcName = "personality_insights"
-            if svcName in services:
-            	print("Personality Insights service found!")
-                svc = services[svcName][0]["credentials"]
-	        #svc = services
-                self.url = svc["url"]
-                self.username = svc["username"]
-                self.password = svc["password"]
-            else:
-                print("ERROR: The Personality Insights service was not found")
+    def __init__(self, url, username, password):
+        self.url = url
+        self.username = username
+        self.password = password
 
     def getProfile(self, text):
         """Returns the profile by doing a POST to /v2/profile with text"""
@@ -135,9 +115,12 @@ if __name__ == '__main__':
             "tools.staticdir.dir": "./public"
         }
     }
-
+    # Credentials for the Watson Personality Insights Service
+    pi_url = os.getenv('CUSTOMCONNSTR_PI_URL')
+    pi_user = os.getenv('CUSTOMCONNSTR_PI_USER')
+    pi_password = os.getenv('CUSTOMCONNSTR_PI_PW')
     # Create the Personality Insights Wrapper
-    personalityInsights = PersonalityInsightsService(os.getenv("VCAP_SERVICES")) 
+    personalityInsights = PersonalityInsightsService(pi_url, pi_user, pi_password) 
     
     # Start the server
     print("Listening on %s:%d" % (HOST_NAME, PORT_NUMBER))
